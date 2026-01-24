@@ -1,30 +1,33 @@
+// 1. Core Database Library
 const mongoose = require('mongoose');
 
+// 2. Environment Variables (for DB connection & AI API keys)
+require('dotenv').config();
+
+// 3. AI SDK (Example using OpenAI, but could be LangChain/HuggingFace)
+// You need this to generate the 'vector_embedding' array.
+const { OpenAI } = require('openai');
+
 const FAQSchema = new mongoose.Schema({
-    // The "Question" or "Problem Statement"
-    topic: { type: String, required: true },
+  topic: { type: String, required: true }, 
+  content: { type: String, required: true }, 
+  category: { 
+    type: String, 
+    enum: ['Technical Support', 'Billing', 'Access Request', 'How-To'],
+    required: true 
+  },
+  success_rate: { type: Number, default: 0 },
+  last_updated: { type: Date, default: Date.now },
 
-    // The generic solution (e.g., "Reset router", "Check invoice in portal")
-    content: { type: String, required: true },
-
-    // Category helps filter search (e.g., only search "Billing" FAQs)
-    category: {
-        type: String,
-        enum: ['Technical Support', 'Billing', 'Access Request', 'How-To'],
-        required: true
-    },
-
-    // Metadata for AI Trust
-    success_rate: { type: Number, default: 0 }, // How often this answer worked
-    last_updated: { type: Date, default: Date.now },
-
-    // --- THE SEARCH KEY ---
-    // Vector embedding of the 'topic' + 'content'
-    vector_embedding: {
-        type: [Number],
-        index: 'vector'
-    }
+  // The Vector Field
+  vector_embedding: { 
+    type: [Number], 
+    required: true, // You generally want this required for an AI system
+    // Note: The index here is purely for Mongoose schema validation. 
+    // The actual search index must be created in MongoDB Atlas.
+  }
 });
 
-// Using 'KnowledgeBase' as the model name to match usage in TicketSchema
-module.exports = mongoose.model('KnowledgeBase', FAQSchema);
+const FAQModel = mongoose.model('FAQ', FAQSchema);
+
+module.exports = FAQModel;

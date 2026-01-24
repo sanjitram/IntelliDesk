@@ -9,8 +9,8 @@ const { ApiError } = require("../utils/Apierror.js");
 const createTicket = asyncHandler(async (req, res) => {
   const { subject, body, customerEmail, customerDomain } = req.body;
 
-  if (!subject || !body) {
-    throw new ApiError(400, "Subject and Body are required");
+  if (!subject || !body || !customerEmail) {
+    throw new ApiError(400, "Subject, Body, and Customer Email are required");
   }
 
   // Combine text ONLY for the FAQ Vector Search (needs full context)
@@ -23,9 +23,9 @@ const createTicket = asyncHandler(async (req, res) => {
   ]);
 
   // 2. PROCESS CLASSIFICATION (Extract new rich data)
-  const { 
-    category = "General Inquiry", 
-    confidence = 0, 
+  const {
+    category = "General Inquiry",
+    confidence = 0,
     severity = "P3",   // AI now tells us if it's P1/P2/P3
     sentiment = "Neutral",
     sla,
@@ -37,6 +37,7 @@ const createTicket = asyncHandler(async (req, res) => {
   let resolutionAction = "No_Match";
   let autoResponseText = null;
   let linkedFaqId = null;
+  console.log("FAQ Result:", faqResult);
 
   if (faqResult.matchType === "PERFECT_MATCH") {
     // === CASE A: > 90% (Perfect) ===
@@ -83,7 +84,7 @@ const createTicket = asyncHandler(async (req, res) => {
     ticketId: `TKT-${Date.now()}`,
     customer: { email: customerEmail, domain: customerDomain },
     content: { subject, original_body: body },
-    
+
     // UPDATED: Store the rich AI data
     classification: {
       category: category,
@@ -93,7 +94,7 @@ const createTicket = asyncHandler(async (req, res) => {
       sla: sla,             // New!
       flags: flags          // New! (is_yelling, etc.)
     },
-    
+
     is_escalated: shouldEscalate,
 
     resolution: {
@@ -107,8 +108,9 @@ const createTicket = asyncHandler(async (req, res) => {
   // 7. SEND RESPONSE
   return res.status(201).json(
     new ApiResponse(
-      201, 
+      201,
       {
+        autoResponseText: autoResponseText,
         ticket: newTicket,
         ai_analysis: {
           classified_as: category,
@@ -117,7 +119,7 @@ const createTicket = asyncHandler(async (req, res) => {
           faq_match_score: faqResult.score,
           action_taken: resolutionAction
         }
-      }, 
+      },
       "Ticket created and processed"
     )
   );

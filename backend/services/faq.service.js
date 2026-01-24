@@ -58,7 +58,7 @@ const findBestFAQMatch = async (queryText) => {
     for (const faq of allFaqs) {
         // Ensure the FAQ has a valid embedding stored
         if (faq.vector_embedding && Array.isArray(faq.vector_embedding)) {
-            
+
             // Safety check: Vectors must be same length
             if (faq.vector_embedding.length === queryVector.length) {
                 const score = cosineSimilarity(queryVector, faq.vector_embedding);
@@ -72,10 +72,10 @@ const findBestFAQMatch = async (queryText) => {
 
     // 4. Logic Thresholds
     let matchType = "NO_MATCH";
-    
-    if (maxScore >= 0.90) {
+
+    if (maxScore >= 0.70) {
         matchType = "PERFECT_MATCH";
-    } else if (maxScore >= 0.60) {
+    } else if (maxScore >= 0.50) {
         matchType = "PARTIAL_MATCH";
     }
 

@@ -3,6 +3,7 @@ const Ticket = require("../models/Ticket.js");
 const { classifyContent } = require("../services/classifier.service.js");
 const { findBestFAQMatch } = require("../services/faq.service.js");
 const { generateForPartialMatch } = require("../services/llm.service.js");
+const { findExistingThread } = require("../services/deduplication.service.js");
 const { ApiResponse } = require("../utils/apiresponse.js");
 const { ApiError } = require("../utils/Apierror.js");
 
@@ -11,6 +12,34 @@ const createTicket = asyncHandler(async (req, res) => {
 
   if (!subject || !body || !customerEmail) {
     throw new ApiError(400, "Subject, Body, and Customer Email are required");
+  }
+
+  // --- DEDUPLICATION & THREADING CHECK ---
+  const existingThread = await findExistingThread(subject, body, customerEmail);
+  
+  if (existingThread.found) {
+    // Append message to existing thread
+    const updatedTicket = await Ticket.findOneAndUpdate(
+      { ticketId: existingThread.ticketId },
+      { 
+        $push: { 
+          thread: {
+            sender: 'Customer',
+            message: body,
+            timestamp: new Date()
+          }
+        }
+      },
+      { new: true }
+    );
+
+    return res.status(200).json(
+      new ApiResponse(
+        200, 
+        { ticket: updatedTicket, reason: existingThread.reason }, 
+        "Message added to existing ticket thread"
+      )
+    );
   }
 
   // Combine text ONLY for the FAQ Vector Search (needs full context)

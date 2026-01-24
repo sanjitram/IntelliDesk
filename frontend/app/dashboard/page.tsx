@@ -1,65 +1,62 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import Link from "next/link";
-import { mockTickets, Ticket } from "@/data/mockData";
+import React, { useState } from "react";
+import { mockTickets } from "@/data/mockData";
 import { TicketList } from "@/components/TicketList";
 import { TicketDetail } from "@/components/TicketDetail";
-import { LayoutDashboard, Settings, Sun, Moon } from "lucide-react";
+import { LayoutDashboard } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-export default function Dashboard() {
+export default function DashboardPage() {
   const [selectedTicketId, setSelectedTicketId] = useState<string | null>(mockTickets[0]?.ticketId || null);
   const [isInboxOpen, setIsInboxOpen] = useState(true);
-  const [isDarkMode, setIsDarkMode] = useState(false);
-
-  useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-  }, [isDarkMode]);
 
   const selectedTicket = mockTickets.find((t) => t.ticketId === selectedTicketId) || null;
 
   return (
-    <div className="flex h-screen w-full bg-background font-sans text-foreground overflow-hidden">
-        {/* Navigation Rail - Mocked for visual completeness */}
-        <div className="w-16 bg-card border-r border-border flex flex-col items-center py-6 gap-6 shrink-0 z-10 transition-colors">
-            <Link href="/" className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center font-bold text-primary-foreground mb-4 shadow-lg shadow-primary/20 hover:scale-105 transition-transform" title="Go to Home">
-                ID
-            </Link>
-            <button 
-                onClick={() => setIsInboxOpen(!isInboxOpen)}
-                className={`p-2 rounded-lg transition-colors ${isInboxOpen ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:text-foreground hover:bg-accent/50"}`}
-                title={isInboxOpen ? "Collapse Inbox" : "Expand Inbox"}
-            >
-                <LayoutDashboard size={20} />
-            </button>
-            <div className="mt-auto flex flex-col gap-6">
-                <button 
-                    onClick={() => setIsDarkMode(!isDarkMode)}
-                    className="p-2 text-muted-foreground hover:text-foreground hover:bg-accent/50 rounded-lg transition-colors"
-                    title={isDarkMode ? "Light Mode" : "Dark Mode"}
-                >
-                    {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
-                </button>
-                <button className="p-2 text-muted-foreground hover:text-foreground hover:bg-accent/50 rounded-lg transition-colors">
-                    <Settings size={20} />
-                </button>
-            </div>
-        </div>
-
-      {/* App Shell */}
-      <div className="flex flex-1 overflow-hidden">
-        {isInboxOpen && (
-            <TicketList
+    <div className="flex h-full w-full relative">
+      {/* Collapsible Inbox List */}
+      <div 
+        className={cn(
+            "transition-all duration-300 ease-in-out border-r border-border h-full flex flex-col relative bg-card/50 backdrop-blur-sm",
+            isInboxOpen ? "w-[400px] translate-x-0" : "w-0 -translate-x-full overflow-hidden opacity-0"
+        )}
+      >
+        <TicketList
             tickets={mockTickets}
             selectedId={selectedTicketId}
             onSelect={(ticket) => setSelectedTicketId(ticket.ticketId)}
-            />
-        )}
-        <TicketDetail ticket={selectedTicket} />
+        />
+      </div>
+
+      {/* Floating Toggle Button (Visible when closed) */}
+      {!isInboxOpen && (
+        <button
+            onClick={() => setIsInboxOpen(true)}
+            className="absolute top-4 left-4 z-20 p-2 bg-card border border-border shadow-md rounded-lg hover:bg-accent transition-colors"
+        >
+            <LayoutDashboard size={20} className="text-foreground" />
+        </button>
+      )}
+
+      {/* Main Content (Ticket Detail) */}
+      <div className="flex-1 h-full min-w-0 bg-background/50">
+         <div className="h-full flex flex-col relative">
+             {/* Header Toggle (Visible when open) */}
+             {isInboxOpen && (
+                <div className="absolute top-3 left-3 z-20">
+                    <button
+                        onClick={() => setIsInboxOpen(false)}
+                        className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-accent/50 rounded-md transition-colors"
+                        title="Collapse Inbox"
+                    >
+                        <LayoutDashboard size={18} />
+                    </button>
+                </div>
+             )}
+             
+            <TicketDetail ticket={selectedTicket} />
+         </div>
       </div>
     </div>
   );

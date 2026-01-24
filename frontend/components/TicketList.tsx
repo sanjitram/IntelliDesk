@@ -11,12 +11,12 @@ interface TicketListProps {
 
 export function TicketList({ tickets, selectedId, onSelect }: TicketListProps) {
   return (
-    <div className="flex flex-col gap-2 p-4 overflow-y-auto h-full bg-slate-50 dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 w-full md:w-1/3 lg:w-[400px] transition-colors">
+    <div className="flex flex-col gap-2 p-4 overflow-y-auto h-full w-full">
       <div className="mb-4">
-        <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">Inbox</h2>
+        <h2 className="text-xl font-bold tracking-tight">Inbox</h2>
         <div className="flex gap-2 text-sm mt-2">
-           <span className="bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-2 py-1 rounded-full text-xs font-semibold">All ({tickets.length})</span>
-           <span className="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-400 px-2 py-1 rounded-full text-xs">P1 (1)</span>
+           <span className="bg-secondary text-secondary-foreground px-2 py-1 rounded-full text-xs font-semibold">All ({tickets.length})</span>
+           <span className="bg-background border border-border text-muted-foreground px-2 py-1 rounded-full text-xs">P1 (1)</span>
         </div>
       </div>
       
@@ -34,14 +34,14 @@ export function TicketList({ tickets, selectedId, onSelect }: TicketListProps) {
             key={ticket.ticketId}
             onClick={() => onSelect(ticket)}
             className={cn(
-              "group relative flex flex-col gap-3 p-4 rounded-xl border transition-all cursor-pointer hover:shadow-md",
+              "group relative flex flex-col gap-3 p-4 rounded-xl border transition-all cursor-pointer",
               isSelected
-                ? "bg-white dark:bg-slate-800 border-blue-500 shadow-md ring-1 ring-blue-500"
-                : "bg-white dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-700"
+                ? "bg-card border-primary/50 shadow-md ring-1 ring-primary/50"
+                : "bg-card/50 border-border hover:bg-card hover:border-border/80"
             )}
           >
             <div className="flex justify-between items-start">
-              <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
+              <span className="text-xs font-medium text-muted-foreground">
                 {ticket.customer.company}
               </span>
               <span

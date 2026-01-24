@@ -13,7 +13,6 @@ export function AiReasoning({ ticket }: { ticket: Ticket }) {
         className="w-full flex items-center justify-between p-3 bg-secondary/30 hover:bg-secondary/50 transition-colors text-foreground"
       >
         <div className="flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-primary" />
           <span className="text-sm font-semibold font-[family-name:var(--font-jetbrains-mono)]">IntelliDesk AI Reasoning</span>
         </div>
         {isOpen ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}

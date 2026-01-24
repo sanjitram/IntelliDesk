@@ -77,9 +77,6 @@ export function ResponsePreview({ ticket, onUpdate }: ResponsePreviewProps) {
     <div className="bg-card border-t border-border p-6 transition-colors">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2 cursor-pointer" onClick={() => setIsCollapsed(!isCollapsed)}>
-           <div className="bg-primary/10 p-1.5 rounded-md">
-             <Wand2 className="w-5 h-5 text-primary" />
-           </div>
            <div>
                <h3 className="text-sm font-bold text-foreground font-[family-name:var(--font-jetbrains-mono)]">AI Suggested Response</h3>
                <div className="flex gap-2 text-xs text-muted-foreground">

@@ -17,7 +17,7 @@ export function TicketList({ tickets, selectedId, onSelect, onRefresh }: TicketL
     <div className="flex flex-col gap-2 p-4 overflow-y-auto h-full w-full">
       <div className="mb-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-bold tracking-tight">Inbox</h2>
+          <h2 className="text-xl font-bold tracking-tight font-[family-name:var(--font-jetbrains-mono)]">Inbox</h2>
           {onRefresh && (
             <button onClick={onRefresh} className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-accent rounded-md transition-colors" title="Refresh">
               <RefreshCw size={16} />

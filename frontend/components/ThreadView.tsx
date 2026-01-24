@@ -9,7 +9,7 @@ export function ThreadView({ ticket }: { ticket: Ticket }) {
 
   return (
     <div className="flex flex-col gap-6">
-      <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider border-b border-slate-100 dark:border-slate-800 pb-2 transition-colors font-[family-name:var(--font-jetbrains-mono)]">
+      <h3 className="text-sm font-bold text-foreground uppercase tracking-wider border-b border-border pb-2 transition-colors font-[family-name:var(--font-jetbrains-mono)]">
         Thread Timeline
       </h3>
       
@@ -29,26 +29,26 @@ export function ThreadView({ ticket }: { ticket: Ticket }) {
                 <div className="flex flex-col items-center gap-1">
                   <div className={cn(
                       "w-8 h-8 rounded-full flex items-center justify-center shrink-0",
-                      isAI ? "bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400" :
-                      isCustomer ? "bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400" :
-                      "bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400"
+                      isAI ? "bg-primary/10 text-primary border border-primary/20" :
+                      isCustomer ? "bg-muted text-muted-foreground border border-border" :
+                      "bg-secondary text-secondary-foreground border border-border"
                   )}>
                       {isAI ? <Bot size={14} /> : isCustomer ? <User size={14} /> : <Share2 size={14} />}
                   </div>
                   {index !== messages.length - 1 && (
-                      <div className="w-0.5 grow bg-slate-200 dark:bg-slate-800 my-1"></div>
+                      <div className="w-0.5 grow bg-border my-1"></div>
                   )}
                 </div>
 
-                <div className="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-4 shadow-sm dark:shadow-none transition-colors">
+                <div className="flex-1 bg-card border border-border rounded-lg p-4 shadow-sm transition-colors">
                   <div className="flex justify-between items-start mb-2">
                       <div>
-                          {isAI && <span className="text-[10px] font-bold bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 px-1.5 py-0.5 rounded border border-indigo-200 dark:border-indigo-800 mb-1 inline-block">AI Generated</span>}
-                          <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-100">{msg.sender}</h4>
-                          <div className="text-xs text-slate-500 dark:text-slate-400">{msg.timestamp}</div>
+                          {isAI && <span className="text-[10px] font-bold bg-primary/10 text-primary px-1.5 py-0.5 rounded border border-primary/20 mb-1 inline-block">AI Generated</span>}
+                          <h4 className="text-sm font-semibold text-foreground">{msg.sender}</h4>
+                          <div className="text-xs text-muted-foreground">{msg.timestamp}</div>
                       </div>
                   </div>
-                  <p className="text-sm text-slate-600 dark:text-slate-300 whitespace-pre-wrap leading-relaxed">{msg.message}</p>
+                  <p className="text-sm text-foreground/90 whitespace-pre-wrap leading-relaxed">{msg.message}</p>
                 </div>
               </div>
             );

@@ -105,6 +105,7 @@ export function transformTicket(backendTicket: BackendTicket): Ticket {
       sender: msg.sender,
       role: msg.sender === 'Customer' ? 'customer' : 'support',
       timestamp: new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      fullTimestamp: msg.timestamp, // Add this for calculations
       message: msg.message,
     })),
     is_escalated: backendTicket.is_escalated,

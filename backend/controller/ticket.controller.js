@@ -205,6 +205,105 @@ const createTicket = asyncHandler(async (req, res) => {
   );
 });
 
+// GET /api/tickets - Get all tickets
+const getAllTickets = asyncHandler(async (req, res) => {
+  const { status, severity, category, limit = 50, page = 1 } = req.query;
+  
+  // Build filter object
+  const filter = {};
+  if (status) filter.status = status;
+  if (severity) filter['classification.severity'] = severity;
+  if (category) filter['classification.category'] = category;
+
+  const skip = (parseInt(page) - 1) * parseInt(limit);
+  
+  const tickets = await Ticket.find(filter)
+    .sort({ createdAt: -1 })
+    .limit(parseInt(limit))
+    .skip(skip);
+    
+  const total = await Ticket.countDocuments(filter);
+
+  res.status(200).json(
+    new ApiResponse(200, { 
+      tickets, 
+      pagination: {
+        total,
+        page: parseInt(page),
+        limit: parseInt(limit),
+        pages: Math.ceil(total / parseInt(limit))
+      }
+    }, "Tickets fetched successfully")
+  );
+});
+
+// GET /api/tickets/:ticketId - Get single ticket by ID
+const getTicketById = asyncHandler(async (req, res) => {
+  const { ticketId } = req.params;
+  
+  const ticket = await Ticket.findOne({ ticketId }).populate('resolution.linked_faq_id');
+  
+  if (!ticket) {
+    throw new ApiError(404, "Ticket not found");
+  }
+
+  res.status(200).json(
+    new ApiResponse(200, { ticket }, "Ticket fetched successfully")
+  );
+});
+
+// PUT /api/tickets/:ticketId - Update ticket
+const updateTicket = asyncHandler(async (req, res) => {
+  const { ticketId } = req.params;
+  const updates = req.body;
+  
+  const ticket = await Ticket.findOneAndUpdate(
+    { ticketId },
+    { $set: updates },
+    { new: true, runValidators: true }
+  );
+  
+  if (!ticket) {
+    throw new ApiError(404, "Ticket not found");
+  }
+
+  res.status(200).json(
+    new ApiResponse(200, { ticket }, "Ticket updated successfully")
+  );
+});
+
+// POST /api/tickets/:ticketId/reply - Add reply to ticket thread
+const addReplyToTicket = asyncHandler(async (req, res) => {
+  const { ticketId } = req.params;
+  const { message, sender = 'Human_Agent' } = req.body;
+  
+  if (!message) {
+    throw new ApiError(400, "Message is required");
+  }
+  
+  const ticket = await Ticket.findOneAndUpdate(
+    { ticketId },
+    { 
+      $push: { 
+        thread: {
+          sender,
+          message,
+          timestamp: new Date()
+        }
+      }
+    },
+    { new: true }
+  );
+  
+  if (!ticket) {
+    throw new ApiError(404, "Ticket not found");
+  }
+
+  res.status(200).json(
+    new ApiResponse(200, { ticket }, "Reply added successfully")
+  );
+});
+
 // POST /api/v1/tickets/quick-reply (No Ticket ID required)
 const sendDirectEmail = asyncHandler(async (req, res) => {
   const { customerEmail, question, answer } = req.body;
@@ -223,4 +322,4 @@ const sendDirectEmail = asyncHandler(async (req, res) => {
   res.status(200).json(new ApiResponse(200, { sent: true }, "Manual reply sent!"));
 });
 
-module.exports = { createTicket, sendDirectEmail };
+module.exports = { createTicket, getAllTickets, getTicketById, updateTicket, addReplyToTicket, sendDirectEmail };

@@ -1,22 +1,32 @@
 import React from "react";
-import { Ticket } from "@/data/mockData";
+import { Ticket } from "@/lib/api";
 import { cn } from "@/lib/utils";
-import { Clock, ShieldAlert } from "lucide-react";
+import { Clock, ShieldAlert, RefreshCw } from "lucide-react";
 
 interface TicketListProps {
   tickets: Ticket[];
   selectedId: string | null;
   onSelect: (ticket: Ticket) => void;
+  onRefresh?: () => void;
 }
 
-export function TicketList({ tickets, selectedId, onSelect }: TicketListProps) {
+export function TicketList({ tickets, selectedId, onSelect, onRefresh }: TicketListProps) {
+  const p1Count = tickets.filter(t => t.severity === 'P1').length;
+  
   return (
     <div className="flex flex-col gap-2 p-4 overflow-y-auto h-full w-full">
       <div className="mb-4">
-        <h2 className="text-xl font-bold tracking-tight font-[family-name:var(--font-jetbrains-mono)]">Inbox</h2>
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-bold tracking-tight">Inbox</h2>
+          {onRefresh && (
+            <button onClick={onRefresh} className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-accent rounded-md transition-colors" title="Refresh">
+              <RefreshCw size={16} />
+            </button>
+          )}
+        </div>
         <div className="flex gap-2 text-sm mt-2">
            <span className="bg-secondary text-secondary-foreground px-2 py-1 rounded-full text-xs font-semibold">All ({tickets.length})</span>
-           <span className="bg-background border border-border text-muted-foreground px-2 py-1 rounded-full text-xs">P1 (1)</span>
+           <span className="bg-background border border-border text-muted-foreground px-2 py-1 rounded-full text-xs">P1 ({p1Count})</span>
         </div>
       </div>
       
@@ -41,8 +51,8 @@ export function TicketList({ tickets, selectedId, onSelect }: TicketListProps) {
             )}
           >
             <div className="flex justify-between items-start">
-              <span className="text-xs font-medium text-muted-foreground">
-                {ticket.customer.company}
+              <span className="text-xs font-medium text-muted-foreground truncate max-w-[180px]" title={ticket.customer.email}>
+                {ticket.customer.domain || ticket.customer.email.split('@')[1] || ticket.customer.email}
               </span>
               <span
                 className={cn(

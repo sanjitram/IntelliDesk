@@ -1,5 +1,5 @@
 import React from "react";
-import { Ticket } from "@/data/mockData";
+import { Ticket } from "@/lib/api";
 import { AiReasoning } from "./AiReasoning";
 import { ThreadView } from "./ThreadView";
 import { CustomerSidebar } from "./CustomerSidebar";
@@ -7,9 +7,10 @@ import { ResponsePreview } from "./ResponsePreview";
 
 interface TicketDetailProps {
   ticket: Ticket | null;
+  onUpdate?: () => void;
 }
 
-export function TicketDetail({ ticket }: TicketDetailProps) {
+export function TicketDetail({ ticket, onUpdate }: TicketDetailProps) {
   if (!ticket) {
     return (
       <div className="flex-1 flex items-center justify-center bg-background/50 text-muted-foreground transition-colors">
@@ -45,7 +46,7 @@ export function TicketDetail({ ticket }: TicketDetailProps) {
         </div>
 
         {/* Response Area (Fixed at bottom of main panel) */}
-        <ResponsePreview ticket={ticket} />
+        <ResponsePreview ticket={ticket} onUpdate={onUpdate} />
       </div>
 
        {/* Right Sidebar */}

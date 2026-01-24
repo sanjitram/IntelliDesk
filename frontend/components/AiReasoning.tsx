@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { Ticket } from "@/data/mockData";
+import { Ticket } from "@/lib/api";
 import { cn } from "@/lib/utils";
-import { BrainCircuit, Sparkles, ChevronDown, ChevronUp, Merge } from "lucide-react";
+import { Sparkles, ChevronDown, ChevronUp, AlertTriangle } from "lucide-react";
 
 export function AiReasoning({ ticket }: { ticket: Ticket }) {
   const [isOpen, setIsOpen] = useState(true);
@@ -32,23 +32,42 @@ export function AiReasoning({ ticket }: { ticket: Ticket }) {
             </div>
           </div>
 
-          {/* Severity Analysis */}
+          {/* Severity & Sentiment */}
           <div className="flex flex-col gap-1">
              <span className="text-xs font-medium text-muted-foreground uppercase">Severity Analysis</span>
              <div className="text-sm font-semibold text-foreground">{ticket.severity} Detected</div>
-             <p className="text-xs text-muted-foreground leading-tight">
-               {ticket.aiInsights.severityReason}
-             </p>
+             <div className="text-xs text-muted-foreground leading-tight">
+               {ticket.classification?.sentiment && (
+               <p className="text-xs text-slate-600 dark:text-slate-300 leading-tight">
+                 Sentiment: {ticket.classification.sentiment}
+               </p>
+             )}
+             </div>
           </div>
 
-           {/* Deduplication */}
+           {/* Flags / Status */}
            <div className="flex flex-col gap-1">
-             <span className="text-xs font-medium text-muted-foreground uppercase">Consolidation</span>
-             <div className="flex items-center gap-2 text-sm text-foreground">
-                <Merge className="w-4 h-4 text-muted-foreground" />
-                <span>Merged {ticket.deduplication.mergedEmails} related emails</span>
+             <span className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">AI Flags</span>
+             <div className="flex flex-wrap gap-2">
+               {ticket.classification?.flags?.is_yelling && (
+                 <span className="flex items-center gap-1 text-xs bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 px-2 py-0.5 rounded-full">
+                   <AlertTriangle className="w-3 h-3" /> Yelling Detected
+                 </span>
+               )}
+               {ticket.classification?.flags?.has_urgent_punctuation && (
+                 <span className="text-xs bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 px-2 py-0.5 rounded-full">
+                   Urgent Tone
+                 </span>
+               )}
+               {ticket.is_escalated && (
+                 <span className="text-xs bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 px-2 py-0.5 rounded-full">
+                   Escalated
+                 </span>
+               )}
+               {!ticket.classification?.flags?.is_yelling && !ticket.classification?.flags?.has_urgent_punctuation && !ticket.is_escalated && (
+                 <span className="text-xs text-slate-500 dark:text-slate-400">No special flags</span>
+               )}
              </div>
-             <p className="text-xs text-muted-foreground">{Math.round(ticket.deduplication.similarity * 100)}% Content Similarity</p>
           </div>
         </div>
       )}

@@ -12,21 +12,13 @@ import {
   Moon, 
   MessageSquare
 } from "lucide-react";
+import { useTheme } from "@/context/ThemeContext";
 import { cn } from "@/lib/utils";
 
 export function AppSidebar() {
   const pathname = usePathname();
-  const [isDarkMode, setIsDarkMode] = useState(false);
-
-  // Initialize dark mode from system or local storage preference would generally go here
-  // For now, simple toggle state
-  useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-  }, [isDarkMode]);
+  const { theme, toggleTheme } = useTheme();
+  const isDarkMode = theme === "dark";
 
   const navItems = [
     { href: "/dashboard", icon: MessageSquare, label: "Inbox" },
@@ -75,7 +67,7 @@ export function AppSidebar() {
 
       <div className="mt-auto mb-16 flex flex-col gap-6">
         <button 
-            onClick={() => setIsDarkMode(!isDarkMode)}
+            onClick={toggleTheme}
             className="p-2 text-muted-foreground hover:text-foreground hover:bg-secondary rounded-lg transition-colors relative group"
             title={isDarkMode ? "Light Mode" : "Dark Mode"}
         >

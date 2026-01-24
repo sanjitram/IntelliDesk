@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useTheme } from "@/context/ThemeContext";
 import { 
   ArrowRight, 
   CheckCircle2, 
@@ -15,15 +16,8 @@ import {
 } from "lucide-react";
 
 export default function HomePage() {
-  const [isDarkMode, setIsDarkMode] = useState(false);
-
-  useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-  }, [isDarkMode]);
+  const { theme, toggleTheme } = useTheme();
+  const isDarkMode = theme === "dark";
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col font-sans transition-colors">
@@ -39,7 +33,7 @@ export default function HomePage() {
 
           <div className="flex items-center gap-3">
              <button 
-                onClick={() => setIsDarkMode(!isDarkMode)}
+                onClick={toggleTheme}
                 className="p-2 text-muted-foreground hover:text-foreground hover:bg-accent/50 rounded-lg transition-colors"
                 title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
             >

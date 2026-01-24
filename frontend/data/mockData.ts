@@ -28,6 +28,7 @@ export interface Ticket {
     steps: string[];
     successRate: string;
     avgResolutionTime: string;
+    matchScore: number;
   };
   messages: Array<{
     id: string;
@@ -75,6 +76,7 @@ export const mockTickets: Ticket[] = [
       ],
       successRate: "82%",
       avgResolutionTime: "1.4 hours",
+      matchScore: 85,
     },
     messages: [
       {
@@ -147,6 +149,7 @@ export const mockTickets: Ticket[] = [
       ],
       successRate: "95%",
       avgResolutionTime: "15 mins",
+      matchScore: 92,
     },
     messages: [
       {
@@ -192,6 +195,7 @@ export const mockTickets: Ticket[] = [
       ],
       successRate: "100%",
       avgResolutionTime: "N/A",
+      matchScore: 55,
     },
     messages: [
       {
@@ -238,6 +242,7 @@ export const mockTickets: Ticket[] = [
       ],
       successRate: "76%",
       avgResolutionTime: "45 mins",
+      matchScore: 78,
     },
     messages: [
       {

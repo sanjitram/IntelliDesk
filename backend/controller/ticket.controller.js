@@ -1,4 +1,5 @@
 const { asyncHandler } = require("../utils/AsyncHandler.js");
+const axios = require('axios');
 const Ticket = require("../models/Ticket.js");
 const { classifyContent } = require("../services/classifier.service.js");
 const { findBestFAQMatch } = require("../services/faq.service.js");
@@ -26,13 +27,13 @@ const createTicket = asyncHandler(async (req, res) => {
 
   // --- DEDUPLICATION & THREADING CHECK ---
   const existingThread = await findExistingThread(subject, body, customerEmail);
-  
+
   if (existingThread.found) {
     // Append message to existing thread
     const updatedTicket = await Ticket.findOneAndUpdate(
       { ticketId: existingThread.ticketId },
-      { 
-        $push: { 
+      {
+        $push: {
           thread: {
             sender: 'Customer',
             message: body,
@@ -45,8 +46,8 @@ const createTicket = asyncHandler(async (req, res) => {
 
     return res.status(200).json(
       new ApiResponse(
-        200, 
-        { ticket: updatedTicket, reason: existingThread.reason }, 
+        200,
+        { ticket: updatedTicket, reason: existingThread.reason },
         "Message added to existing ticket thread"
       )
     );
@@ -56,9 +57,17 @@ const createTicket = asyncHandler(async (req, res) => {
   const fullText = `Subject: ${subject}. ${body}`;
 
   // 1. PARALLEL EXECUTION
-  const [aiResult, faqResult] = await Promise.all([
+  const [aiResult, faqResult, enrichmentResult] = await Promise.all([
     classifyContent(subject, body), // UPDATED: Pass subject/body separately for the new API
-    findBestFAQMatch(fullText)      // Keep full text for Vector Search
+    findBestFAQMatch(fullText),      // Keep full text for Vector Search
+    axios.post("https://maurice-clingy-overcivilly.ngrok-free.dev/process-email", {
+      email: customerEmail,
+      subject: subject,
+      body: body
+    }).then(res => res.data).catch(err => {
+      console.error("Enrichment API failed:", err.message);
+      return null;
+    })
   ]);
 
   // 2. PROCESS CLASSIFICATION (Extract new rich data)
@@ -134,6 +143,34 @@ const createTicket = asyncHandler(async (req, res) => {
       flags: flags          // New! (is_yelling, etc.)
     },
 
+    // ENRICHMENT DATA
+    enrichment: enrichmentResult ? {
+      domain_mapping: {
+        domain: enrichmentResult['1_Domain_Mapping']?.Domain,
+        account_id: enrichmentResult['1_Domain_Mapping']?.Account_ID,
+        tier: enrichmentResult['1_Domain_Mapping']?.Tier
+      },
+      user_lookup: {
+        role_db: enrichmentResult['2_User_Lookup']?.Role_DB,
+        last_login: enrichmentResult['2_User_Lookup']?.Last_Login,
+        modules: enrichmentResult['2_User_Lookup']?.Modules
+      },
+      signature_parsing: {
+        extracted_name: enrichmentResult['3_Signature_Parsing']?.Extracted_Name,
+        extracted_role: enrichmentResult['3_Signature_Parsing']?.Extracted_Role,
+        extracted_phone: enrichmentResult['3_Signature_Parsing']?.Extracted_Phone
+      },
+      multi_tenant_handling: {
+        identified_locations: enrichmentResult['4_Multi_Tenant_Handling']?.Identified_Locations,
+        routing: enrichmentResult['4_Multi_Tenant_Handling']?.Routing
+      },
+      lead_detection: {
+        is_new_customer: enrichmentResult['5_Lead_Detection']?.Is_New_Customer,
+        intent_detected: enrichmentResult['5_Lead_Detection']?.Intent_Detected,
+        action: enrichmentResult['5_Lead_Detection']?.Action
+      }
+    } : undefined,
+
     is_escalated: shouldEscalate,
 
     resolution: {
@@ -144,9 +181,15 @@ const createTicket = asyncHandler(async (req, res) => {
     thread: threadHistory
   });
 
+  // Update customer domain if available from enrichment
+  if (enrichmentResult && enrichmentResult['1_Domain_Mapping']?.Domain) {
+    newTicket.customer.domain = enrichmentResult['1_Domain_Mapping'].Domain;
+    await newTicket.save();
+  }
+
   // 7. SEND RESPONSE
- return res.status(201).json(
-  new ApiResponse(201, {
+  return res.status(201).json(
+    new ApiResponse(201, {
       ticket: newTicket,
       ai_analysis: {
         classified_as: category,
@@ -156,9 +199,10 @@ const createTicket = asyncHandler(async (req, res) => {
         faq_match_type: faqResult.matchType, // "PERFECT_MATCH" or "PARTIAL_MATCH"
         faq_solution: faqResult.bestMatch ? faqResult.bestMatch.content : null,
         faq_topic: faqResult.bestMatch ? faqResult.bestMatch.topic : null
-      }
-  }, "Ticket processed")
-  ); 
+      },
+      enrichment: newTicket.enrichment
+    }, "Ticket processed")
+  );
 });
 
 // POST /api/v1/tickets/quick-reply (No Ticket ID required)
@@ -172,7 +216,7 @@ const sendDirectEmail = asyncHandler(async (req, res) => {
   // Send Email
   await transporter.sendMail({
     to: customerEmail,
-    subject: question, 
+    subject: question,
     text: answer
   });
 

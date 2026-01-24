@@ -37,13 +37,6 @@ export default function HomePage() {
             <span className="font-bold text-xl tracking-tight">IntelliDesk AI</span>
           </div>
 
-          <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-muted-foreground">
-            <Link href="#" className="hover:text-primary transition-colors">Features</Link>
-            <Link href="#" className="hover:text-primary transition-colors">Solutions</Link>
-            <Link href="#" className="hover:text-primary transition-colors">Pricing</Link>
-            <Link href="#" className="hover:text-primary transition-colors">Docs</Link>
-          </nav>
-
           <div className="flex items-center gap-3">
              <button 
                 onClick={() => setIsDarkMode(!isDarkMode)}
@@ -67,10 +60,6 @@ export default function HomePage() {
         {/* Hero Section */}
         <section className="py-20 md:py-32 border-b border-border bg-gradient-to-b from-background to-muted/20">
           <div className="container mx-auto px-4 md:px-6 flex flex-col items-center text-center">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/10 text-accent font-medium text-sm mb-6 border border-accent/20">
-              <span className="flex h-2 w-2 rounded-full bg-accent"></span>
-              v2.0 Now Available
-            </div>
             
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight max-w-4xl mb-6 bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70">
               Customer Support, <br />
@@ -86,12 +75,9 @@ export default function HomePage() {
                 href="/" 
                 className="bg-primary text-primary-foreground hover:bg-primary/90 h-12 px-8 rounded-lg flex items-center justify-center font-medium text-lg transition-all shadow-lg hover:shadow-primary/25"
               >
-                Get Started Free
+                Get Started
                 <ArrowRight className="ml-2 w-5 h-5" />
               </Link>
-              <button className="bg-card hover:bg-secondary border border-border text-foreground h-12 px-8 rounded-lg font-medium text-lg transition-colors">
-                View Demo
-              </button>
             </div>
 
             {/* Mock UI Preview */}
@@ -152,47 +138,6 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Social Proof / Stats */}
-        <section className="py-20 border-y border-border bg-muted/30">
-          <div className="container mx-auto px-4 md:px-6">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-              {[
-                { label: "Tickets Solved", value: "10M+" },
-                { label: "Response Time", value: "-45%" },
-                { label: "CSAT Score", value: "4.9/5" },
-                { label: "Global Teams", value: "500+" }
-              ].map((stat, i) => (
-                <div key={i}>
-                  <div className="text-3xl md:text-4xl font-bold text-foreground mb-1">{stat.value}</div>
-                  <div className="text-sm font-medium text-muted-foreground uppercase tracking-wide">{stat.label}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* CTA */}
-        <section className="py-24">
-          <div className="container mx-auto px-4 md:px-6">
-            <div className="bg-primary rounded-2xl p-8 md:p-16 text-center text-primary-foreground relative overflow-hidden">
-               <div className="absolute top-0 right-0 p-16 bg-white/10 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
-               <div className="absolute bottom-0 left-0 p-20 bg-black/10 rounded-full blur-3xl -ml-20 -mb-20 pointer-events-none"></div>
-               
-              <h2 className="text-3xl md:text-4xl font-bold mb-6 relative z-10">Ready to transform your support workflow?</h2>
-              <p className="text-primary-foreground/80 max-w-2xl mx-auto mb-10 text-lg relative z-10">
-                Join thousands of support teams using IntelliDesk to deliver faster, more personal customer experiences.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center relative z-10">
-                <Link href="/" className="bg-background text-foreground hover:bg-secondary h-12 px-8 rounded-lg flex items-center justify-center font-bold transition-colors">
-                  Start Your Free Trial
-                </Link>
-                <button className="bg-primary-foreground/10 hover:bg-primary-foreground/20 text-primary-foreground border border-primary-foreground/20 h-12 px-8 rounded-lg font-bold transition-colors">
-                    Talk to Sales
-                </button>
-              </div>
-            </div>
-          </div>
-        </section>
       </main>
 
       <footer className="bg-card border-t border-border py-12 text-sm">
@@ -202,9 +147,6 @@ export default function HomePage() {
             <span className="text-muted-foreground font-medium">© 2026 IntelliDesk AI Inc.</span>
           </div>
           <div className="flex gap-6 text-muted-foreground">
-            <Link href="#" className="hover:text-foreground">Privacy</Link>
-            <Link href="#" className="hover:text-foreground">Terms</Link>
-            <Link href="#" className="hover:text-foreground">Twitter</Link>
             <Link href="#" className="hover:text-foreground">GitHub</Link>
           </div>
         </div>

@@ -1,7 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import { Ticket } from "@/lib/api";
 import { cn } from "@/lib/utils";
-import { Clock, ShieldAlert, RefreshCw } from "lucide-react";
+import { Clock, ShieldAlert, RefreshCw, Search, X } from "lucide-react";
+
+type SeverityFilter = 'All' | 'P1' | 'P2' | 'P3' | 'P4';
 
 interface TicketListProps {
   tickets: Ticket[];
@@ -11,7 +13,24 @@ interface TicketListProps {
 }
 
 export function TicketList({ tickets, selectedId, onSelect, onRefresh }: TicketListProps) {
+  const [filter, setFilter] = useState<SeverityFilter>('All');
+  const [searchQuery, setSearchQuery] = useState('');
+  
   const p1Count = tickets.filter(t => t.severity === 'P1').length;
+  const p2Count = tickets.filter(t => t.severity === 'P2').length;
+  const p3Count = tickets.filter(t => t.severity === 'P3').length;
+  const p4Count = tickets.filter(t => t.severity === 'P4').length;
+  
+  // Filter tickets based on severity filter and search query
+  const filteredTickets = tickets.filter(t => {
+    const matchesSeverity = filter === 'All' || t.severity === filter;
+    const matchesSearch = searchQuery === '' || 
+      t.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      t.ticketId.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      t.customer.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      t.category.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesSeverity && matchesSearch;
+  });
   
   return (
     <div className="flex flex-col gap-2 p-4 overflow-y-auto h-full w-full">
@@ -24,13 +43,92 @@ export function TicketList({ tickets, selectedId, onSelect, onRefresh }: TicketL
             </button>
           )}
         </div>
-        <div className="flex gap-2 text-sm mt-2">
-           <span className="bg-secondary text-secondary-foreground px-2 py-1 rounded-full text-xs font-semibold">All ({tickets.length})</span>
-           <span className="bg-background border border-border text-muted-foreground px-2 py-1 rounded-full text-xs">P1 ({p1Count})</span>
+        <div className="flex flex-wrap gap-2 text-sm mt-2">
+           <button 
+             onClick={() => setFilter('All')}
+             className={cn(
+               "px-2.5 py-1 rounded-md text-xs font-medium transition-colors cursor-pointer border",
+               filter === 'All' 
+                 ? "bg-foreground/10 text-foreground border-foreground/20" 
+                 : "bg-transparent text-muted-foreground border-transparent hover:bg-muted hover:text-foreground"
+             )}
+           >
+             All ({tickets.length})
+           </button>
+           <button 
+             onClick={() => setFilter('P1')}
+             className={cn(
+               "px-2.5 py-1 rounded-md text-xs font-medium transition-colors cursor-pointer border",
+               filter === 'P1' 
+                 ? "bg-red-500/15 text-red-600 dark:text-red-400 border-red-500/30" 
+                 : "bg-transparent text-muted-foreground border-transparent hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-400"
+             )}
+           >
+             P1 ({p1Count})
+           </button>
+           <button 
+             onClick={() => setFilter('P2')}
+             className={cn(
+               "px-2.5 py-1 rounded-md text-xs font-medium transition-colors cursor-pointer border",
+               filter === 'P2' 
+                 ? "bg-orange-500/15 text-orange-600 dark:text-orange-400 border-orange-500/30" 
+                 : "bg-transparent text-muted-foreground border-transparent hover:bg-orange-500/10 hover:text-orange-600 dark:hover:text-orange-400"
+             )}
+           >
+             P2 ({p2Count})
+           </button>
+           <button 
+             onClick={() => setFilter('P3')}
+             className={cn(
+               "px-2.5 py-1 rounded-md text-xs font-medium transition-colors cursor-pointer border",
+               filter === 'P3' 
+                 ? "bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30" 
+                 : "bg-transparent text-muted-foreground border-transparent hover:bg-amber-500/10 hover:text-amber-600 dark:hover:text-amber-400"
+             )}
+           >
+             P3 ({p3Count})
+           </button>
+           <button 
+             onClick={() => setFilter('P4')}
+             className={cn(
+               "px-2.5 py-1 rounded-md text-xs font-medium transition-colors cursor-pointer border",
+               filter === 'P4' 
+                 ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30" 
+                 : "bg-transparent text-muted-foreground border-transparent hover:bg-emerald-500/10 hover:text-emerald-600 dark:hover:text-emerald-400"
+             )}
+           >
+             P4 ({p4Count})
+           </button>
+        </div>
+        
+        {/* Search Bar */}
+        <div className="relative mt-3">
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <input
+            type="text"
+            placeholder="Search tickets..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-9 pr-8 py-2 text-sm bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary placeholder:text-muted-foreground transition-all"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <X size={14} />
+            </button>
+          )}
         </div>
       </div>
       
-      {tickets.map((ticket) => {
+      {filteredTickets.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+          <ShieldAlert size={32} className="mb-2 opacity-50" />
+          <p className="text-sm">No {filter} tickets found</p>
+        </div>
+      ) : (
+        filteredTickets.map((ticket) => {
         const isSelected = selectedId === ticket.ticketId;
         const severityColor = {
           P1: "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 border-red-200 dark:border-red-900",
@@ -84,7 +182,8 @@ export function TicketList({ tickets, selectedId, onSelect, onRefresh }: TicketL
             </div>
           </div>
         );
-      })}
+      })
+      )}
     </div>
   );
 }

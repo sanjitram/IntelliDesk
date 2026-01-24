@@ -1,12 +1,12 @@
-import { asynchandler } from "../utils/AsyncHandler.js";
-import { Ticket } from "../models/Ticket.js"; 
-import { classifyContent } from "../services/classifier.service.js"; 
-import { findBestFAQMatch } from "../utils/faq.service.js";
-import { generateForPartialMatch } from "../utils/llm.service.js"; // <--- NEW IMPORT
-import { ApiResponse } from "../utils/apiresponse.js";
-import { ApiError } from "../utils/Apierror.js";
+const { asyncHandler } = require("../utils/AsyncHandler.js");
+const Ticket = require("../models/Ticket.js");
+const { classifyContent } = require("../services/classifier.service.js");
+const { findBestFAQMatch } = require("../services/faq.service.js");
+const { generateForPartialMatch } = require("../services/llm.service.js");
+const { ApiResponse } = require("../utils/apiresponse.js");
+const { ApiError } = require("../utils/Apierror.js");
 
-const createTicket = asynchandler(async (req, res) => {
+const createTicket = asyncHandler(async (req, res) => {
   const { subject, body, customerEmail, customerDomain } = req.body;
 
   if (!subject || !body) {
@@ -17,7 +17,7 @@ const createTicket = asynchandler(async (req, res) => {
 
   // 1. PARALLEL EXECUTION
   const [classificationResult, faqResult] = await Promise.all([
-    classifyContent(fullText), 
+    classifyContent(fullText),
     findBestFAQMatch(fullText)
   ]);
 
@@ -38,7 +38,7 @@ const createTicket = asynchandler(async (req, res) => {
     ticketStatus = "Auto-Replied";
     resolutionAction = "Auto_Resolved";
     linkedFaqId = faqResult.bestMatch._id;
-    
+
     autoResponseText = `
       Hi there,
       Based on your issue regarding "${category}", we found a solution:
@@ -52,14 +52,14 @@ const createTicket = asynchandler(async (req, res) => {
   } else if (faqResult.matchType === "PARTIAL_MATCH") {
     // === CASE B: 60% - 90% (Partial) ===
     // NEW: Use Generative AI to frame the suggestion gently
-    ticketStatus = "In_Progress"; 
+    ticketStatus = "In_Progress";
     resolutionAction = "Suggestion_Sent";
     linkedFaqId = faqResult.bestMatch._id;
 
     // Call the Generator Service
     autoResponseText = await generateForPartialMatch(fullText, faqResult.bestMatch);
   }
-  
+
   // === CASE C: < 60% (No Match) ===
   // Status stays "New", autoResponseText stays null (Human agent needed)
 
@@ -95,7 +95,7 @@ const createTicket = asynchandler(async (req, res) => {
   // 6. SEND RESPONSE
   return res.status(201).json(
     new ApiResponse(
-      201, 
+      201,
       {
         ticket: newTicket,
         ai_analysis: {
@@ -103,10 +103,10 @@ const createTicket = asynchandler(async (req, res) => {
           faq_match_score: faqResult.score,
           action_taken: resolutionAction
         }
-      }, 
+      },
       "Ticket created and processed"
     )
   );
 });
 
-export { createTicket };
+module.exports = { createTicket };

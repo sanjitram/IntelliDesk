@@ -23,6 +23,9 @@ app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+// Routes
+app.use('/api/tickets', require('./routes/ticket.routes'));
+
 // Error handler
 app.use(errorHandler);
 

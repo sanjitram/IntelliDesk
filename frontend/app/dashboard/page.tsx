@@ -5,7 +5,7 @@ import Link from "next/link";
 import { mockTickets, Ticket } from "@/data/mockData";
 import { TicketList } from "@/components/TicketList";
 import { TicketDetail } from "@/components/TicketDetail";
-import { LayoutDashboard, Settings, Search, Bell, Sun, Moon } from "lucide-react";
+import { LayoutDashboard, Settings, Sun, Moon } from "lucide-react";
 
 export default function Dashboard() {
   const [selectedTicketId, setSelectedTicketId] = useState<string | null>(mockTickets[0]?.ticketId || null);
@@ -26,7 +26,7 @@ export default function Dashboard() {
     <div className="flex h-screen w-full bg-background font-sans text-foreground overflow-hidden">
         {/* Navigation Rail - Mocked for visual completeness */}
         <div className="w-16 bg-card border-r border-border flex flex-col items-center py-6 gap-6 shrink-0 z-10 transition-colors">
-            <Link href="/home" className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center font-bold text-primary-foreground mb-4 shadow-lg shadow-primary/20 hover:scale-105 transition-transform" title="Go to Home">
+            <Link href="/" className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center font-bold text-primary-foreground mb-4 shadow-lg shadow-primary/20 hover:scale-105 transition-transform" title="Go to Home">
                 ID
             </Link>
             <button 
@@ -35,12 +35,6 @@ export default function Dashboard() {
                 title={isInboxOpen ? "Collapse Inbox" : "Expand Inbox"}
             >
                 <LayoutDashboard size={20} />
-            </button>
-            <button className="p-2 text-muted-foreground hover:text-foreground hover:bg-accent/50 rounded-lg transition-colors">
-                 <Search size={20} />
-            </button>
-             <button className="p-2 text-muted-foreground hover:text-foreground hover:bg-accent/50 rounded-lg transition-colors">
-                 <Bell size={20} />
             </button>
             <div className="mt-auto flex flex-col gap-6">
                 <button 

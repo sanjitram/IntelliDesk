@@ -44,6 +44,7 @@ export interface BackendTicket {
 export interface Ticket {
   ticketId: string;
   subject: string;
+  originalBody: string;
   category: string;
   categoryConfidence: number;
   severity: 'P1' | 'P2' | 'P3' | 'P4';
@@ -81,6 +82,7 @@ export function transformTicket(backendTicket: BackendTicket): Ticket {
   return {
     ticketId: backendTicket.ticketId,
     subject: backendTicket.content.subject,
+    originalBody: backendTicket.content.original_body,
     category: backendTicket.classification.category,
     categoryConfidence: backendTicket.classification.confidence_score,
     severity: backendTicket.classification.severity,
@@ -164,17 +166,17 @@ export async function createTicket(data: {
   return transformTicket(response.data.ticket);
 }
 
-// Reply to a ticket
+// Reply to a ticket (sends email to customer)
 export async function replyToTicket(data: {
-  ticketId: string;
-  message: string;
-  sender?: string;
-}): Promise<Ticket> {
-  const response = await fetchApi<{ data: { ticket: BackendTicket } }>('/tickets/reply', {
+  customerEmail: string;
+  question: string;
+  answer: string;
+}): Promise<{ sent: boolean }> {
+  const response = await fetchApi<{ data: { sent: boolean } }>('/tickets/reply', {
     method: 'POST',
     body: JSON.stringify(data),
   });
-  return transformTicket(response.data.ticket);
+  return response.data;
 }
 
 // Health check

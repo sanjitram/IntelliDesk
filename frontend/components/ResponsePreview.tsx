@@ -56,10 +56,11 @@ export function ResponsePreview({ ticket, onUpdate }: ResponsePreviewProps) {
       setSendError(null);
       
       await replyToTicket({
-        ticketId: ticket.ticketId,
-        message: responseBody,
-        sender: 'Human_Agent'
+        customerEmail: ticket.customer.email,
+        question: ticket.originalBody || ticket.subject,
+        answer: responseBody
       });
+      console.log(ticket.customer.email, ticket.originalBody, responseBody);
       
       // Clear the response and refresh ticket data
       setResponseBody("");

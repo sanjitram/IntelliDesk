@@ -106,7 +106,7 @@ export function useCreateTicket(): UseCreateTicketReturn {
 }
 
 interface UseReplyTicketReturn {
-  sendReply: (data: { ticketId: string; message: string; sender?: string }) => Promise<Ticket | null>;
+  sendReply: (data: { customerEmail: string; question: string; answer: string }) => Promise<{ sent: boolean } | null>;
   loading: boolean;
   error: string | null;
 }
@@ -115,12 +115,12 @@ export function useReplyTicket(): UseReplyTicketReturn {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const sendReply = useCallback(async (data: { ticketId: string; message: string; sender?: string }) => {
+  const sendReply = useCallback(async (data: { customerEmail: string; question: string; answer: string }) => {
     try {
       setLoading(true);
       setError(null);
-      const ticket = await replyToTicket(data);
-      return ticket;
+      const result = await replyToTicket(data);
+      return result;
     } catch (err) {
       const message = err instanceof ApiError ? err.message : 'Failed to send reply';
       setError(message);

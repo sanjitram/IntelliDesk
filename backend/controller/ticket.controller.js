@@ -106,23 +106,20 @@ const createTicket = asyncHandler(async (req, res) => {
   });
 
   // 7. SEND RESPONSE
-  return res.status(201).json(
-    new ApiResponse(
-      201,
-      {
-        autoResponseText: autoResponseText,
-        ticket: newTicket,
-        ai_analysis: {
-          classified_as: category,
-          severity: severity,
-          sentiment: sentiment,
-          faq_match_score: faqResult.score,
-          action_taken: resolutionAction
-        }
-      },
-      "Ticket created and processed"
-    )
-  );
+ return res.status(201).json(
+  new ApiResponse(201, {
+      ticket: newTicket,
+      ai_analysis: {
+        classified_as: category,
+        severity: severity,
+        // CRITICAL: Send these details to n8n
+        faq_match_found: faqResult.matchType !== "NO_MATCH",
+        faq_match_type: faqResult.matchType, // "PERFECT_MATCH" or "PARTIAL_MATCH"
+        faq_solution: faqResult.bestMatch ? faqResult.bestMatch.content : null,
+        faq_topic: faqResult.bestMatch ? faqResult.bestMatch.topic : null
+      }
+  }, "Ticket processed")
+  ); 
 });
 
 module.exports = { createTicket };

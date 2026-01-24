@@ -6,6 +6,16 @@ const { generateForPartialMatch } = require("../services/llm.service.js");
 const { findExistingThread } = require("../services/deduplication.service.js");
 const { ApiResponse } = require("../utils/apiresponse.js");
 const { ApiError } = require("../utils/Apierror.js");
+const nodemailer = require("nodemailer");
+
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
+
 
 const createTicket = asyncHandler(async (req, res) => {
   const { subject, body, customerEmail, customerDomain } = req.body;
@@ -151,4 +161,22 @@ const createTicket = asyncHandler(async (req, res) => {
   ); 
 });
 
-module.exports = { createTicket };
+// POST /api/v1/tickets/quick-reply (No Ticket ID required)
+const sendDirectEmail = asyncHandler(async (req, res) => {
+  const { customerEmail, question, answer } = req.body;
+
+  if (!customerEmail || !question || !answer) {
+    throw new ApiError(400, "Customer email, question, and answer are required");
+  }
+
+  // Send Email
+  await transporter.sendMail({
+    to: customerEmail,
+    subject: question, 
+    text: answer
+  });
+
+  res.status(200).json(new ApiResponse(200, { sent: true }, "Manual reply sent!"));
+});
+
+module.exports = { createTicket, sendDirectEmail };

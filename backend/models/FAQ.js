@@ -4,10 +4,6 @@ const mongoose = require('mongoose');
 // 2. Environment Variables (for DB connection & AI API keys)
 require('dotenv').config();
 
-// 3. AI SDK (Example using OpenAI, but could be LangChain/HuggingFace)
-// You need this to generate the 'vector_embedding' array.
-const { OpenAI } = require('openai');
-
 const FAQSchema = new mongoose.Schema({
   topic: { type: String, required: true }, 
   content: { type: String, required: true }, 

@@ -37,6 +37,7 @@ const findBestFAQMatch = async (queryText) => {
 
         // Extract the embedding array from the response
         queryVector = response.data.embedding;
+        console.log("Received Query Embedding:", queryVector);
 
     } catch (error) {
         console.error("Embedding API Error:", error.message);

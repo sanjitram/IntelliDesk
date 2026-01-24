@@ -14,13 +14,14 @@ import {
   LayoutDashboard
 } from "lucide-react";
 import { useTheme } from "@/context/ThemeContext";
+import { ScrollReveal } from "@/components/ScrollReveal";
 
 export default function HomePage() {
   const { theme, toggleTheme } = useTheme();
   const isDarkMode = theme === "dark";
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col font-sans transition-colors">
+    <div className="min-h-screen bg-background text-foreground flex flex-col font-[family-name:var(--font-jetbrains-mono)] transition-colors">
       {/* Header */}
       <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
@@ -55,16 +56,16 @@ export default function HomePage() {
         <section className="py-20 md:py-32 border-b border-border bg-gradient-to-b from-background to-muted/20">
           <div className="container mx-auto px-4 md:px-6 flex flex-col items-center text-center">
             
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight max-w-4xl mb-6 bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70">
+            <h1 className="animate-fade-in-up text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight max-w-4xl mb-6 bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70">
               Customer Support, <br />
               <span className="text-primary">supercharged by AI.</span>
             </h1>
             
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mb-10 leading-relaxed">
+            <p className="animate-fade-in-up text-lg md:text-xl text-muted-foreground max-w-2xl mb-10 leading-relaxed" style={{ animationDelay: "0.2s" }}>
               IntelliDesk analyzes tickets, drafts responses, and provides real-time context—so your team can focus on solving problems, not reading logs.
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+            <div className="animate-fade-in-up flex flex-col sm:flex-row gap-4 w-full sm:w-auto" style={{ animationDelay: "0.4s" }}>
               <Link 
                 href="/dashboard" 
                 className="bg-primary text-primary-foreground hover:bg-primary/90 h-12 px-8 rounded-lg flex items-center justify-center font-medium text-lg transition-all shadow-lg hover:shadow-primary/25"
@@ -75,7 +76,7 @@ export default function HomePage() {
             </div>
 
             {/* Mock UI Preview */}
-            <div className="mt-16 w-full max-w-5xl rounded-xl border border-border shadow-2xl bg-card overflow-hidden">
+            <div className="animate-fade-in-up mt-16 w-full max-w-5xl rounded-xl border border-border shadow-2xl bg-card overflow-hidden" style={{ animationDelay: "0.6s" }}>
                 <div className="h-10 bg-muted/50 border-b border-border flex items-center px-4 gap-2">
                     <div className="w-3 h-3 rounded-full bg-red-400/80"></div>
                     <div className="w-3 h-3 rounded-full bg-yellow-400/80"></div>
@@ -95,12 +96,14 @@ export default function HomePage() {
         {/* Features Grid */}
         <section className="py-24 bg-background">
           <div className="container mx-auto px-4 md:px-6">
-            <div className="text-center max-w-3xl mx-auto mb-16">
-              <h2 className="text-3xl font-bold mb-4">Everything you need to scale support</h2>
-              <p className="text-muted-foreground text-lg">
-                Built for modern support teams who demand speed, accuracy, and empathy.
-              </p>
-            </div>
+            <ScrollReveal>
+              <div className="text-center max-w-3xl mx-auto mb-16">
+                <h2 className="text-3xl font-bold mb-4">Everything you need to scale support</h2>
+                <p className="text-muted-foreground text-lg">
+                  Built for modern support teams who demand speed, accuracy, and empathy.
+                </p>
+              </div>
+            </ScrollReveal>
 
             <div className="grid md:grid-cols-3 gap-8">
               {[
@@ -120,13 +123,15 @@ export default function HomePage() {
                   description: "SOC2 compliant security with role-based access control and detailed audit logging."
                 }
               ].map((feature, i) => (
-                <div key={i} className="bg-card border border-border rounded-xl p-6 hover:shadow-lg transition-shadow hover:border-primary/20 group">
-                  <div className="w-12 h-12 bg-muted rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                    {feature.icon}
+                <ScrollReveal key={i} delay={i * 0.1}>
+                  <div className="bg-card border border-border rounded-xl p-6 hover:shadow-lg transition-shadow hover:border-primary/20 group h-full">
+                    <div className="w-12 h-12 bg-muted rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                      {feature.icon}
+                    </div>
+                    <h3 className="text-xl font-bold mb-2">{feature.title}</h3>
+                    <p className="text-muted-foreground">{feature.description}</p>
                   </div>
-                  <h3 className="text-xl font-bold mb-2">{feature.title}</h3>
-                  <p className="text-muted-foreground">{feature.description}</p>
-                </div>
+                </ScrollReveal>
               ))}
             </div>
           </div>

@@ -9,7 +9,7 @@ export function ThreadView({ ticket }: { ticket: Ticket }) {
 
   return (
     <div className="flex flex-col gap-6">
-      <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider border-b border-slate-100 dark:border-slate-800 pb-2 transition-colors">
+      <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider border-b border-slate-100 dark:border-slate-800 pb-2 transition-colors font-[family-name:var(--font-jetbrains-mono)]">
         Thread Timeline
       </h3>
       

@@ -8,7 +8,7 @@ export default function AnalyticsPage() {
     <div className="p-8 h-full overflow-y-auto bg-background/50">
       <div className="max-w-6xl mx-auto flex flex-col gap-8">
         <div>
-           <h1 className="text-3xl font-bold tracking-tight mb-2">Performance Analytics</h1>
+           <h1 className="text-3xl font-bold tracking-tight mb-2 font-[family-name:var(--font-jetbrains-mono)]">Performance Analytics</h1>
            <p className="text-muted-foreground">Real-time data across all support channels.</p>
         </div>
 

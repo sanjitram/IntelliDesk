@@ -13,7 +13,7 @@ export function TicketList({ tickets, selectedId, onSelect }: TicketListProps) {
   return (
     <div className="flex flex-col gap-2 p-4 overflow-y-auto h-full w-full">
       <div className="mb-4">
-        <h2 className="text-xl font-bold tracking-tight">Inbox</h2>
+        <h2 className="text-xl font-bold tracking-tight font-[family-name:var(--font-jetbrains-mono)]">Inbox</h2>
         <div className="flex gap-2 text-sm mt-2">
            <span className="bg-secondary text-secondary-foreground px-2 py-1 rounded-full text-xs font-semibold">All ({tickets.length})</span>
            <span className="bg-background border border-border text-muted-foreground px-2 py-1 rounded-full text-xs">P1 (1)</span>

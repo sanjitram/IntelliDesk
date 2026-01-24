@@ -18,7 +18,7 @@ export default function CustomersPage() {
       <div className="max-w-6xl mx-auto flex flex-col gap-8">
          <div className="flex items-center justify-between">
             <div>
-                <h1 className="text-3xl font-bold tracking-tight mb-2">Customer Base</h1>
+                <h1 className="text-3xl font-bold tracking-tight mb-2 font-[family-name:var(--font-jetbrains-mono)]">Customer Base</h1>
                 <p className="text-muted-foreground">Manage accounts, tiers, and health scores.</p>
             </div>
             <button className="bg-primary text-primary-foreground px-4 py-2 rounded-lg flex items-center gap-2 hover:opacity-90 transition-opacity">

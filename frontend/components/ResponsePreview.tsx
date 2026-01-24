@@ -37,7 +37,7 @@ export function ResponsePreview({ ticket }: { ticket: Ticket }) {
              <Wand2 className="w-5 h-5 text-primary" />
            </div>
            <div>
-               <h3 className="text-sm font-bold text-foreground">AI Suggested Response</h3>
+               <h3 className="text-sm font-bold text-foreground font-[family-name:var(--font-jetbrains-mono)]">AI Suggested Response</h3>
                <div className="flex gap-2 text-xs text-muted-foreground">
                   <span className={isHighMatch ? "text-green-600 font-medium" : isLowMatch ? "text-red-500 font-medium" : ""}>
                     Match Score: {matchScore}%
@@ -64,9 +64,9 @@ export function ResponsePreview({ ticket }: { ticket: Ticket }) {
               </button>
             )}
 
-            <button className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-green-600 hover:bg-green-700 rounded-md shadow-sm shadow-green-200 dark:shadow-none transition-colors">
+            <button className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-primary text-primary-foreground hover:bg-primary/90 rounded-md shadow-sm transition-colors">
                 <Send className="w-3.5 h-3.5" />
-                Send Response
+                Send Email
             </button>
         </div>
         )}

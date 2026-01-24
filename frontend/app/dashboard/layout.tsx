@@ -1,5 +1,6 @@
 import React from "react";
 import { AppSidebar } from "@/components/AppSidebar";
+import { InboxProvider } from "@/context/InboxContext";
 
 export default function DashboardLayout({
   children,
@@ -7,11 +8,13 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex h-screen w-full font-sans text-foreground overflow-hidden">
-      <AppSidebar />
-      <div className="flex-1 overflow-hidden h-full relative">
-        {children}
+    <InboxProvider>
+      <div className="flex h-screen w-full font-sans text-foreground overflow-hidden">
+        <AppSidebar />
+        <div className="flex-1 overflow-hidden h-full relative">
+          {children}
+        </div>
       </div>
-    </div>
+    </InboxProvider>
   );
 }

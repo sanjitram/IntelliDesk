@@ -13,18 +13,19 @@ import {
   MessageSquare
 } from "lucide-react";
 import { useTheme } from "@/context/ThemeContext";
+import { useInbox } from "@/context/InboxContext";
 import { cn } from "@/lib/utils";
 
 export function AppSidebar() {
   const pathname = usePathname();
   const { theme, toggleTheme } = useTheme();
+  const { toggleInbox } = useInbox();
   const isDarkMode = theme === "dark";
 
   const navItems = [
     { href: "/dashboard", icon: MessageSquare, label: "Inbox" },
     { href: "/dashboard/analytics", icon: BarChart3, label: "Analytics" },
     { href: "/dashboard/customers", icon: Users, label: "Customers" },
-    { href: "/dashboard/settings", icon: Settings, label: "Settings" },
   ];
 
   return (
@@ -46,6 +47,12 @@ export function AppSidebar() {
             <Link
               key={item.href}
               href={item.href}
+              onClick={(e) => {
+                if (item.href === "/dashboard" && pathname === "/dashboard") {
+                  e.preventDefault();
+                  toggleInbox();
+                }
+              }}
               className={cn(
                 "p-2 rounded-xl flex justify-center transition-all duration-200 group relative",
                 isActive 

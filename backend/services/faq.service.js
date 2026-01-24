@@ -1,5 +1,5 @@
+const axios = require("axios"); // Import axios for HTTP requests
 const FAQ = require("../models/FAQ.js");
-const { generateEmbedding } = require("../utils/aiService.js");
 const { ApiError } = require("../utils/Apierror.js");
 
 // Helper function to calculate Cosine Similarity
@@ -25,15 +25,30 @@ const findBestFAQMatch = async (queryText) => {
         throw new ApiError(400, "Query text is required for FAQ search");
     }
 
-    // 1. Generate Vector for the Query
-    const queryVector = await generateEmbedding(queryText);
+    // 1. Generate Vector for the Query using External API
+    // URL: https://renda-corrodible-unsavorily.ngrok-free.dev/get-embedding
+    let queryVector;
+    try {
+        const response = await axios.post("https://renda-corrodible-unsavorily.ngrok-free.dev/get-embedding", {
+            text: queryText
+        }, {
+            timeout: 5000 // 5s timeout to prevent hanging if ngrok is slow
+        });
 
-    if (!queryVector) {
-        throw new ApiError(500, "Failed to generate AI embedding for query");
+        // Extract the embedding array from the response
+        queryVector = response.data.embedding;
+
+    } catch (error) {
+        console.error("Embedding API Error:", error.message);
+        throw new ApiError(500, "Failed to fetch embedding from external AI server");
     }
 
-    // 2. Fetch ALL FAQs from local DB (Inefficient for huge DBs, but fine for local testing)
-    // We need the 'vector_embedding' field which might not be selected by default if we don't ask
+    if (!queryVector || !Array.isArray(queryVector)) {
+        throw new ApiError(500, "Invalid embedding format received from server");
+    }
+
+    // 2. Fetch ALL FAQs from local DB 
+    // (Note: For production with >10k items, switch to Atlas Vector Search)
     const allFaqs = await FAQ.find({});
 
     // 3. Perform In-Memory Vector Search
@@ -41,18 +56,23 @@ const findBestFAQMatch = async (queryText) => {
     let maxScore = -1;
 
     for (const faq of allFaqs) {
+        // Ensure the FAQ has a valid embedding stored
         if (faq.vector_embedding && Array.isArray(faq.vector_embedding)) {
-            const score = cosineSimilarity(queryVector, faq.vector_embedding);
-            if (score > maxScore) {
-                maxScore = score;
-                bestMatch = faq;
+            
+            // Safety check: Vectors must be same length
+            if (faq.vector_embedding.length === queryVector.length) {
+                const score = cosineSimilarity(queryVector, faq.vector_embedding);
+                if (score > maxScore) {
+                    maxScore = score;
+                    bestMatch = faq;
+                }
             }
         }
     }
 
     // 4. Logic Thresholds
     let matchType = "NO_MATCH";
-    // Using the same thresholds as before
+    
     if (maxScore >= 0.90) {
         matchType = "PERFECT_MATCH";
     } else if (maxScore >= 0.60) {

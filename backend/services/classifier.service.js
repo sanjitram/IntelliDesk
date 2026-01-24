@@ -1,34 +1,38 @@
 const axios = require("axios");
 const { ApiError } = require("../utils/Apierror.js");
 
-const CLASSIFIER_URL = "https://hasteful-sophia-cardiologic.ngrok-free.dev/classify";
+// UPDATED: New Endpoint
+const CLASSIFIER_URL = "https://hasteful-sophia-cardiologic.ngrok-free.dev/process_email";
 
-const classifyContent = async (text) => {
+const classifyContent = async (subject, body) => {
     try {
-        // 1. Construct the exact payload your API expects
+        // UPDATED: Payload now matches your curl exactly
         const payload = {
-            text: text
+            subject: subject,
+            body: body
         };
 
-        console.log("Sending to Classifier:", payload);
+        console.log("Sending to AI:", payload);
 
-        // 2. Make the POST request
         const response = await axios.post(CLASSIFIER_URL, payload, {
             headers: { "Content-Type": "application/json" },
-            timeout: 5000 // 5s timeout to prevent hanging
+            timeout: 8000 // Increased timeout slightly for heavier analysis
         });
 
-        // 3. Return the exact data structure: { category, confidence, urgent }
+        // Returns: { category, confidence, severity, sla, sentiment, flags: {...} }
         return response.data;
 
     } catch (error) {
         console.error("Classifier API Failed:", error.message);
 
-        // Fallback if API is down (Prevents backend crash)
+        // Fail-safe Default
         return {
             category: "General Inquiry",
             confidence: 0,
-            urgent: false
+            severity: "P3",
+            sla: "24 Hours",
+            sentiment: "Neutral",
+            flags: { is_yelling: false, has_urgent_punctuation: false }
         };
     }
 };

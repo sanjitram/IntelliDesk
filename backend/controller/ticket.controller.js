@@ -13,20 +13,26 @@ const createTicket = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Subject and Body are required");
   }
 
+  // Combine text ONLY for the FAQ Vector Search (needs full context)
   const fullText = `Subject: ${subject}. ${body}`;
 
   // 1. PARALLEL EXECUTION
-  const [classificationResult, faqResult] = await Promise.all([
-    classifyContent(fullText),
-    findBestFAQMatch(fullText)
+  const [aiResult, faqResult] = await Promise.all([
+    classifyContent(subject, body), // UPDATED: Pass subject/body separately for the new API
+    findBestFAQMatch(fullText)      // Keep full text for Vector Search
   ]);
 
-  // 2. PROCESS CLASSIFICATION
-  const severity = classificationResult.urgent ? "P1" : "P3";
-  const category = classificationResult.category || "General";
-  const confidence = classificationResult.confidence || 0;
+  // 2. PROCESS CLASSIFICATION (Extract new rich data)
+  const { 
+    category = "General Inquiry", 
+    confidence = 0, 
+    severity = "P3",   // AI now tells us if it's P1/P2/P3
+    sentiment = "Neutral",
+    sla,
+    flags = {}         // Defaults to empty object if missing
+  } = aiResult;
 
-  // 3. PROCESS RESOLUTION LOGIC
+  // 3. PROCESS RESOLUTION LOGIC (FAQ Matching)
   let ticketStatus = "New";
   let resolutionAction = "No_Match";
   let autoResponseText = null;
@@ -34,7 +40,6 @@ const createTicket = asyncHandler(async (req, res) => {
 
   if (faqResult.matchType === "PERFECT_MATCH") {
     // === CASE A: > 90% (Perfect) ===
-    // Use Hardcoded template for speed (Trust is high)
     ticketStatus = "Auto-Replied";
     resolutionAction = "Auto_Resolved";
     linkedFaqId = faqResult.bestMatch._id;
@@ -42,16 +47,15 @@ const createTicket = asyncHandler(async (req, res) => {
     autoResponseText = `
       Hi there,
       Based on your issue regarding "${category}", we found a solution:
-      **${faqResult.bestMatch.topic}**
+      **${faqResult.bestMatch.topic || faqResult.bestMatch.question}**
       
-      ${faqResult.bestMatch.content}
+      ${faqResult.bestMatch.content || faqResult.bestMatch.answer} 
       
       (AI Confidence: ${(faqResult.score * 100).toFixed(1)}%)
     `;
 
   } else if (faqResult.matchType === "PARTIAL_MATCH") {
     // === CASE B: 60% - 90% (Partial) ===
-    // NEW: Use Generative AI to frame the suggestion gently
     ticketStatus = "In_Progress";
     resolutionAction = "Suggestion_Sent";
     linkedFaqId = faqResult.bestMatch._id;
@@ -59,9 +63,6 @@ const createTicket = asyncHandler(async (req, res) => {
     // Call the Generator Service
     autoResponseText = await generateForPartialMatch(fullText, faqResult.bestMatch);
   }
-
-  // === CASE C: < 60% (No Match) ===
-  // Status stays "New", autoResponseText stays null (Human agent needed)
 
   // 4. PREPARE THREAD
   const threadHistory = [];
@@ -73,17 +74,28 @@ const createTicket = asyncHandler(async (req, res) => {
     });
   }
 
-  // 5. SAVE TO DB
+  // 5. DETERMINE ESCALATION
+  // Escalate if AI flags yelling OR if severity is critical (P1)
+  const shouldEscalate = flags.is_yelling || flags.has_urgent_punctuation || severity === 'P1';
+
+  // 6. SAVE TO DB
   const newTicket = await Ticket.create({
     ticketId: `TKT-${Date.now()}`,
     customer: { email: customerEmail, domain: customerDomain },
     content: { subject, original_body: body },
+    
+    // UPDATED: Store the rich AI data
     classification: {
       category: category,
       confidence_score: confidence,
       severity: severity,
-      is_escalated: classificationResult.urgent
+      sentiment: sentiment, // New!
+      sla: sla,             // New!
+      flags: flags          // New! (is_yelling, etc.)
     },
+    
+    is_escalated: shouldEscalate,
+
     resolution: {
       status: resolutionAction,
       linked_faq_id: linkedFaqId
@@ -92,18 +104,20 @@ const createTicket = asyncHandler(async (req, res) => {
     thread: threadHistory
   });
 
-  // 6. SEND RESPONSE
+  // 7. SEND RESPONSE
   return res.status(201).json(
     new ApiResponse(
-      201,
+      201, 
       {
         ticket: newTicket,
         ai_analysis: {
           classified_as: category,
+          severity: severity,
+          sentiment: sentiment,
           faq_match_score: faqResult.score,
           action_taken: resolutionAction
         }
-      },
+      }, 
       "Ticket created and processed"
     )
   );

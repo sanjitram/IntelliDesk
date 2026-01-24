@@ -53,10 +53,6 @@ export function ResponsePreview({ ticket }: { ticket: Ticket }) {
         
         {!isCollapsed && (
         <div className="flex gap-2">
-            <button className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-muted-foreground bg-background border border-border rounded-md hover:bg-muted transition-colors">
-                <AlertTriangle className="w-3.5 h-3.5" />
-                Escalate
-            </button>
             
             {!isHighMatch && (
               <button 

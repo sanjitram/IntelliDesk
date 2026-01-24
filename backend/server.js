@@ -14,7 +14,18 @@ connectDB();
 const app = express();
 
 // Middleware
-app.use(cors());
+// Configure CORS for production
+const corsOptions = {
+  origin: [
+    'http://localhost:3000',
+    'https://localhost:3000',
+    process.env.FRONTEND_URL, // Add your Vercel URL here
+  ].filter(Boolean),
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+};
+app.use(cors(corsOptions));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 

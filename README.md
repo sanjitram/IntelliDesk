@@ -52,7 +52,6 @@ Snapshots:
 | Express.js | 4.18.2 | API server |
 | MongoDB | 8.x | Database |
 | Mongoose | 8.0.0 | ODM |
-| OpenAI | 6.16.0 | AI/LLM integration |
 | Winston | 3.11.0 | Logging |
 
 ---

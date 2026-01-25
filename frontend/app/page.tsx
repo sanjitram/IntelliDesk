@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
+import dashboardPreview from "@/assets/dashboard-preview.png";
 import { 
   ArrowRight, 
   CheckCircle2, 
@@ -82,12 +84,17 @@ export default function HomePage() {
                     <div className="w-3 h-3 rounded-full bg-yellow-400/80"></div>
                     <div className="w-3 h-3 rounded-full bg-green-400/80"></div>
                 </div>
-                <div className="p-1 md:p-2 bg-muted/10 h-[300px] md:h-[400px] flex items-center justify-center text-muted-foreground/50">
-                    {/* Abstract representation of the dashboard */}
-                    <div className="flex flex-col items-center gap-4">
-                        <Bot size={48} className="opacity-50" />
-                        <p>Dashboard Preview</p>
-                    </div>
+                <div className="bg-muted/10 relative w-full">
+                    <Image 
+                      src={dashboardPreview}
+                      alt="IntelliDesk AI Dashboard"
+                      placeholder="blur"
+                      priority
+                      style={{
+                        width: '100%',
+                        height: 'auto',
+                      }}
+                    />
                 </div>
             </div>
           </div>

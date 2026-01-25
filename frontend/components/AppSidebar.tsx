@@ -72,7 +72,7 @@ export function AppSidebar() {
         })}
       </div>
 
-      <div className="mt-auto mb-16 flex flex-col gap-6">
+      <div className="mt-auto mb-6 flex flex-col items-center gap-4">
         <button 
             onClick={toggleTheme}
             className="p-2 text-muted-foreground hover:text-foreground hover:bg-secondary rounded-lg transition-colors relative group"
